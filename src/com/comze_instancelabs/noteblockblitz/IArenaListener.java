@@ -3,6 +3,7 @@ package com.comze_instancelabs.noteblockblitz;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,20 +33,12 @@ public class IArenaListener extends ArenaListener {
 		Player p = event.getEntity();
 		if (MinigamesAPI.getAPI().pinstances.get(plugin).global_players.containsKey(p.getName())) {
 			p.setHealth(20D);
-			event.getEntity().setHealth(20D);
 
-			EntityDamageEvent e = event.getEntity().getLastDamageCause();
-			if (e instanceof EntityDamageByEntityEvent) {
-				EntityDamageByEntityEvent e2 = (EntityDamageByEntityEvent) e;
-				if (e2.getDamager() instanceof Player) {
-					Player attacker = (Player) e2.getDamager();
-					if (attacker.getInventory().contains(Material.DIAMOND_AXE)) {
-						p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_AXE));
-						Util.teleportPlayerFixed(p, MinigamesAPI.getAPI().pinstances.get(plugin).global_players.get(p.getName()).getSpawns().get(0));
-						return;
-					}
-				}
+			if (p.getInventory().contains(Material.DIAMOND_AXE)) {
+				p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_AXE));
 			}
+			Util.teleportPlayerFixed(p, MinigamesAPI.getAPI().pinstances.get(plugin).global_players.get(p.getName()).getSpawns().get(0));
+			return;
 		}
 	}
 

@@ -78,6 +78,12 @@ public class IArena extends Arena {
 		for (String p : this.getAllPlayers()) {
 			this.updateScore(p);
 		}
+		final IArena a = this;
+		tt = Bukkit.getScheduler().runTaskLater(m, new Runnable() {
+			public void run() {
+				a.stop();
+			}
+		}, 20L * 60 * m.max_minutes_per_game);
 	}
 
 	@Override
@@ -109,6 +115,9 @@ public class IArena extends Arena {
 		if (timer != null) {
 			timer.cancel();
 		}
+		if (tt != null) {
+			tt.cancel();
+		}
 		nblocs.clear();
 		nblocs_r.clear();
 		nblocs_h.clear();
@@ -119,5 +128,4 @@ public class IArena extends Arena {
 			}
 		}, 10L);
 	}
-
 }

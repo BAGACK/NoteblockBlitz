@@ -47,6 +47,7 @@ public class Main extends JavaPlugin implements Listener {
 	PluginInstance pli = null;
 	static Main m = null;
 	static int global_arenas_size = 30;
+	static int max_minutes_per_game = 30;
 
 	HashMap<String, String> lastdamager = new HashMap<String, String>();
 
@@ -65,9 +66,11 @@ public class Main extends JavaPlugin implements Listener {
 		pli = pinstance;
 
 		getConfig().addDefault("config.global_arenas_square_size", 5);
+		getConfig().addDefault("config.max_minutes_per_game", 10);
 		getConfig().options().copyDefaults(true);
 		this.saveConfig();
 		global_arenas_size = getConfig().getInt("config.global_arenas_square_size");
+		max_minutes_per_game = getConfig().getInt("config.max_minutes_per_game");
 	}
 
 	public static ArrayList<Arena> loadArenas(JavaPlugin plugin, ArenasConfig cf) {
