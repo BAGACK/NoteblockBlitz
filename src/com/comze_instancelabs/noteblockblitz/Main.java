@@ -102,9 +102,14 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onPlayerPickup(PlayerPickupItemEvent event) {
-		if (pli.global_players.containsKey(event.getPlayer().getName())) {
+		Player p = event.getPlayer();
+		if (pli.global_players.containsKey(p.getName())) {
 			if (event.getItem().getItemStack().getType() != Material.DIAMOND_AXE) {
 				event.setCancelled(true);
+			} else {
+				p.sendMessage(ChatColor.RED + "Hit others to stun them!");
+				p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 1));
+				p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100000, 1));
 			}
 		}
 	}
