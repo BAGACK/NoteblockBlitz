@@ -52,17 +52,18 @@ public class Main extends JavaPlugin implements Listener {
 
 	public void onEnable() {
 		m = this;
-		api = MinigamesAPI.getAPI().setupAPI(this, "noteblockblitz", IArena.class, new ArenasConfig(this), new MessagesConfig(this), new IClassesConfig(this), new StatsConfig(this, false), new DefaultConfig(this, false), false);
+		api = MinigamesAPI.getAPI().setupAPI(this, "noteblockblitz", IArena.class, new ArenasConfig(this), new MessagesConfig(this), new IClassesConfig(this), new StatsConfig(this, false), new DefaultConfig(this, false), true);
 		PluginInstance pinstance = api.pinstances.get(this);
 		pinstance.addLoadedArenas(loadArenas(this, pinstance.getArenasConfig()));
 		Bukkit.getPluginManager().registerEvents(this, this);
 		pinstance.arenaSetup = new ArenaSetup();
-		pli = pinstance;
 
 		IArenaListener t = new IArenaListener(this, pinstance);
 		api.registerArenaListenerLater(this, t);
 		pinstance.setArenaListener(t);
-		
+
+		pli = pinstance;
+
 		getConfig().addDefault("config.global_arenas_square_size", 5);
 		getConfig().options().copyDefaults(true);
 		this.saveConfig();
@@ -119,7 +120,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 				a.updateScore(p.getName());
 				if (!a.nblocs.containsKey(l)) {
-					if (Math.random() * 14 > 13 && a.nblocs_h.keySet().size() < 1) {
+					if (Math.random() * 14 > 1 && a.nblocs_h.keySet().size() < 1) {
 						a.nblocs_h.put(l, true);
 					}
 					a.nblocs.put(l, 1);
