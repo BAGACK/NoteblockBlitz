@@ -1,0 +1,12 @@
+name: MGNoteblockBlitz
+main: com.comze_instancelabs.noteblockblitz.Main
+version: 1.0.0
+author: InstanceLabs
+softdepend: [Vault, MinigamesAPI]
+depend: [MinigamesAPI]
+loadbefore: [MinigamesAPI]
+commands:
+   nb:
+      description: Main command
+      usage: /noteblockblitz [action]
+      aliases: [noteblockblitz, mgnoteblockblitz, nbb]
