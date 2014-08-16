@@ -59,6 +59,10 @@ public class Main extends JavaPlugin implements Listener {
 		pinstance.arenaSetup = new ArenaSetup();
 		pli = pinstance;
 
+		IArenaListener t = new IArenaListener(this, pinstance);
+		api.registerArenaListenerLater(this, t);
+		pinstance.setArenaListener(t);
+		
 		getConfig().addDefault("config.global_arenas_square_size", 5);
 		getConfig().options().copyDefaults(true);
 		this.saveConfig();
@@ -117,7 +121,6 @@ public class Main extends JavaPlugin implements Listener {
 				if (!a.nblocs.containsKey(l)) {
 					if (Math.random() * 14 > 13 && a.nblocs_h.keySet().size() < 1) {
 						a.nblocs_h.put(l, true);
-						System.out.println("test");
 					}
 					a.nblocs.put(l, 1);
 					a.nblocs_r.put(l, (int) (Math.random() * 4 + 5));
@@ -132,7 +135,7 @@ public class Main extends JavaPlugin implements Listener {
 						itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 5, true);
 						p.getInventory().addItem(new ItemStack(Material.DIAMOND_AXE));
 						p.sendMessage(ChatColor.RED + "Hit others to stun them!");
-						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 2));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 1));
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100000, 1));
 						a.updateScore(p.getName());
 						event.setCancelled(true);

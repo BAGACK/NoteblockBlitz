@@ -25,6 +25,8 @@ public class IArena extends Arena {
 	public HashMap<Location, Integer> nblocs_r = new HashMap<Location, Integer>();
 	public HashMap<Location, Boolean> nblocs_h = new HashMap<Location, Boolean>();
 
+	boolean flag = false;
+
 	public IArena(Main m, String arena) {
 		super(m, arena);
 		this.m = m;
@@ -42,6 +44,7 @@ public class IArena extends Arena {
 					m.pli.global_lost.put(p, this);
 				}
 			}
+			flag = true;
 			this.stop();
 		}
 		pscore.put(player, c + 1);
@@ -60,9 +63,7 @@ public class IArena extends Arena {
 
 		Location s = new Location(start.getWorld(), x, y, z);
 
-		// TODO generate noteblocks
-
-		// generate a c * c square
+		// generate a c * c square of noteblocks
 
 		for (int i = 0; i < c; i++) {
 			for (int j = 0; j < c; j++) {
@@ -86,6 +87,23 @@ public class IArena extends Arena {
 
 	@Override
 	public void stop() {
+		if (!flag) {
+			int highest = 0;
+			String highest_p = "";
+			for (String p : this.getAllPlayers()) {
+				if (pscore.containsKey(p)) {
+					if (pscore.get(p) > highest) {
+						highest = pscore.get(p);
+						highest_p = p;
+					}
+				}
+			}
+			for (String p : this.getAllPlayers()) {
+				if (!p.equalsIgnoreCase(highest_p)) {
+					m.pli.global_lost.put(p, this);
+				}
+			}
+		}
 		super.stop();
 		final IArena a = this;
 		if (timer != null) {
