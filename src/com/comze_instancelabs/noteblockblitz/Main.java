@@ -54,6 +54,8 @@ public class Main extends JavaPlugin implements Listener {
 
 	HashMap<String, BukkitTask> psneak = new HashMap<String, BukkitTask>();
 
+	String hammerstr = ChatColor.GOLD + "Hit others to stun them! Hold shift for a knockback splash attack.";
+
 	public void onEnable() {
 		m = this;
 		api = MinigamesAPI.getAPI().setupAPI(this, "noteblockblitz", IArena.class, new ArenasConfig(this), new MessagesConfig(this), new IClassesConfig(this), new StatsConfig(this, false), new DefaultConfig(this, false), true);
@@ -110,7 +112,7 @@ public class Main extends JavaPlugin implements Listener {
 			if (event.getItem().getItemStack().getType() != Material.DIAMOND_AXE) {
 				event.setCancelled(true);
 			} else {
-				p.sendMessage(ChatColor.RED + "Hit others to stun them!");
+				p.sendMessage(hammerstr);
 				p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 1));
 				p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100000, 1));
 			}
@@ -144,9 +146,12 @@ public class Main extends JavaPlugin implements Listener {
 					if (Math.random() * 2 > 1 && a.nblocs_h.containsKey(l)) {
 						ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
 						ItemMeta itemmeta_axe = axe.getItemMeta();
-						itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 5, true);
-						p.getInventory().addItem(new ItemStack(Material.DIAMOND_AXE));
-						p.sendMessage(ChatColor.RED + "Hit others to stun them!");
+						itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
+						itemmeta_axe.addEnchant(Enchantment.DIG_SPEED, 1, true);
+						itemmeta_axe.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Hammer");
+						axe.setItemMeta(itemmeta_axe);
+						p.getInventory().addItem(axe);
+						p.sendMessage(hammerstr);
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 1));
 						p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100000, 1));
 						a.updateScore(p.getName());

@@ -6,12 +6,14 @@ import java.util.Arrays;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -37,7 +39,13 @@ public class IArenaListener extends ArenaListener {
 		if (MinigamesAPI.getAPI().pinstances.get(plugin).global_players.containsKey(p.getName())) {
 			p.setHealth(20D);
 			if (p.getInventory().contains(Material.DIAMOND_AXE)) {
-				p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_AXE));
+				ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
+				ItemMeta itemmeta_axe = axe.getItemMeta();
+				itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
+				itemmeta_axe.addEnchant(Enchantment.DIG_SPEED, 1, true);
+				itemmeta_axe.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Hammer");
+				axe.setItemMeta(itemmeta_axe);
+				p.getWorld().dropItem(p.getLocation(), axe);
 			}
 			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				public void run() {
