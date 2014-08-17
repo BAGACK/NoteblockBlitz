@@ -14,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,11 +23,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.comze_instancelabs.minigamesapi.Arena;
 import com.comze_instancelabs.minigamesapi.ArenaSetup;
@@ -49,7 +52,7 @@ public class Main extends JavaPlugin implements Listener {
 	static int global_arenas_size = 30;
 	static int max_minutes_per_game = 30;
 
-	HashMap<String, String> lastdamager = new HashMap<String, String>();
+	HashMap<String, BukkitTask> psneak = new HashMap<String, BukkitTask>();
 
 	public void onEnable() {
 		m = this;
@@ -128,7 +131,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 				a.updateScore(p.getName());
 				if (!a.nblocs.containsKey(l)) {
-					if (Math.random() * 14 > 1 && a.nblocs_h.keySet().size() < 1) {
+					if (Math.random() * 14 > 13 && a.nblocs_h.keySet().size() < 1) {
 						a.nblocs_h.put(l, true);
 					}
 					a.nblocs.put(l, 1);
@@ -205,6 +208,47 @@ public class Main extends JavaPlugin implements Listener {
 							p.removePotionEffect(PotionEffectType.JUMP);
 						}
 					}, 60L);
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onSneak(PlayerToggleSneakEvent event) {
+		final Player p = event.getPlayer();
+		if (pli.global_players.containsKey(p.getName())) {
+			if (event.isSneaking()) {
+				if (!p.getInventory().contains(Material.DIAMOND_AXE)) {
+					return;
+				}
+				if (!psneak.containsKey(p.getName())) {
+					p.setExp(0.001F);
+					psneak.put(p.getName(), Bukkit.getScheduler().runTaskTimer(m, new Runnable() {
+						public void run() {
+							p.setExp(p.getExp() + 0.05F);
+							if (p.getExp() > 0.9F) {
+								// do the knockback attack
+								for (Entity e : p.getNearbyEntities(3D, 3D, 3D)) {
+									if (e instanceof Player) {
+										Player p_ = (Player) e;
+										if (p != p_) {
+											p_.setVelocity(p_.getEyeLocation().getDirection().multiply(-2D));
+										}
+									}
+								}
+								psneak.get(p.getName()).cancel();
+							}
+						}
+					}, 3L, 3L));
+				}
+			} else {
+				if (psneak.containsKey(p.getName())) {
+					p.setExp(0.001F);
+					// stopped sneaking, stop task
+					if (psneak.get(p.getName()) != null) {
+						psneak.get(p.getName()).cancel();
+					}
+					psneak.remove(p.getName());
 				}
 			}
 		}
