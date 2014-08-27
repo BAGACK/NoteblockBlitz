@@ -57,9 +57,9 @@ public class IArena extends Arena {
 	}
 
 	public void generateArena(Location start) {
-		int x = start.getBlockX() - (5 * (c / 2 - 1));
+		int x = start.getBlockX() - (5 * (c / 2));
 		int y = start.getBlockY() + 3;
-		int z = start.getBlockZ() - (5 * (c / 2 - 1));
+		int z = start.getBlockZ() - (5 * (c / 2));
 
 		Location s = new Location(start.getWorld(), x, y, z);
 
