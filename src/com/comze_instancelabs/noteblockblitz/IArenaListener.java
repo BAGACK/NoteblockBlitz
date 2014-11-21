@@ -25,9 +25,9 @@ import com.comze_instancelabs.minigamesapi.util.Util;
 
 public class IArenaListener extends ArenaListener {
 
-	JavaPlugin plugin;
+	Main plugin;
 
-	public IArenaListener(JavaPlugin plugin, PluginInstance pinstance) {
+	public IArenaListener(Main plugin, PluginInstance pinstance) {
 		super(plugin, pinstance, "noteblockblitz", new ArrayList<String>(Arrays.asList("/nb")));
 		this.plugin = plugin;
 	}
@@ -37,15 +37,26 @@ public class IArenaListener extends ArenaListener {
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		final Player p = event.getEntity();
 		if (MinigamesAPI.getAPI().pinstances.get(plugin).global_players.containsKey(p.getName())) {
+			event.getDrops().clear();
 			p.setHealth(20D);
+			for (PotionEffect t : p.getActivePotionEffects()) {
+				if (t != null) {
+					p.removePotionEffect(t.getType());
+				}
+			}
 			if (p.getInventory().contains(Material.DIAMOND_AXE)) {
 				ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
 				ItemMeta itemmeta_axe = axe.getItemMeta();
 				itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
 				itemmeta_axe.addEnchant(Enchantment.DIG_SPEED, 1, true);
-				itemmeta_axe.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Hammer");
+				itemmeta_axe.setDisplayName(plugin.hammer_item);
 				axe.setItemMeta(itemmeta_axe);
 				p.getWorld().dropItem(p.getLocation(), axe);
+
+				p.setWalkSpeed(0.0F);
+				p.setFoodLevel(5);
+				p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 10000, -7));
+				p.sendMessage(plugin.stunned_because_lost_hammer);
 			}
 			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				public void run() {
@@ -54,10 +65,6 @@ public class IArenaListener extends ArenaListener {
 			}, 10L);
 			Util.teleportPlayerFixed(p, MinigamesAPI.getAPI().pinstances.get(plugin).global_players.get(p.getName()).getSpawns().get(0));
 
-			p.setWalkSpeed(0.0F);
-			p.setFoodLevel(5);
-			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 10000, -7));
-			p.sendMessage(ChatColor.RED + "You are stunned because you lost the hammer!");
 			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				public void run() {
 					p.setWalkSpeed(0.2F);

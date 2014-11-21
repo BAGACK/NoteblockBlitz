@@ -3,14 +3,15 @@ package com.comze_instancelabs.noteblockblitz;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.NoteBlock;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.comze_instancelabs.minigamesapi.Arena;
 import com.comze_instancelabs.minigamesapi.util.Util;
+import com.comze_instancelabs.minigamesapi.util.Validator;
 
 public class IArena extends Arena {
 
@@ -32,13 +33,13 @@ public class IArena extends Arena {
 		this.m = m;
 	}
 
-	public void updateScore(String player) {
+	public void updateScore(String player, int count) {
 		if (!pscore.containsKey(player)) {
-			pscore.put(player, 1);
+			pscore.put(player, count);
 			return;
 		}
-		int c = pscore.get(player);
-		if (c > 48) {
+		int c = pscore.get(player) + count;
+		if (c > 49) {
 			for (String p : this.getAllPlayers()) {
 				if (!p.equalsIgnoreCase(player)) {
 					m.pli.global_lost.put(p, this);
@@ -47,7 +48,7 @@ public class IArena extends Arena {
 			flag = true;
 			this.stop();
 		}
-		pscore.put(player, c + 1);
+		pscore.put(player, c);
 		m.pli.scoreboardManager.setCurrentScoreMap(pscore);
 		m.pli.scoreboardManager.updateScoreboard(m, this);
 	}
@@ -76,7 +77,10 @@ public class IArena extends Arena {
 	@Override
 	public void started() {
 		for (String p : this.getAllPlayers()) {
-			this.updateScore(p);
+			this.updateScore(p, 0);
+			if (Validator.isPlayerOnline(p)) {
+				Bukkit.getPlayer(p).sendMessage(m.intro_message);
+			}
 		}
 		final IArena a = this;
 		tt = Bukkit.getScheduler().runTaskLater(m, new Runnable() {
@@ -107,6 +111,9 @@ public class IArena extends Arena {
 			for (String p : this.getAllPlayers()) {
 				if (!p.equalsIgnoreCase(highest_p)) {
 					m.pli.global_lost.put(p, this);
+				}
+				if (m.gold.containsKey(p)) {
+					m.gold.remove(p);
 				}
 			}
 		}
