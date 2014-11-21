@@ -69,6 +69,7 @@ public class Main extends JavaPlugin implements Listener {
 	String stunned_because_lost_hammer = "";
 	String intro_message = "";
 	String stunnedstr = "";
+	String hammer_spawned = "";
 
 	public void onEnable() {
 		m = this;
@@ -98,6 +99,7 @@ public class Main extends JavaPlugin implements Listener {
 		pli.getMessagesConfig().getConfig().addDefault("messages.stunned_because_lost_hammer", "&cYou are stunned because you lost the hammer!");
 		pli.getMessagesConfig().getConfig().addDefault("messages.intro_message", "&c&lJump under noteblocks or break them to get gold! First one with 50 gold wins! Be aware of the hammer guy..");
 		pli.getMessagesConfig().getConfig().addDefault("messages.stunned", "&cYou are stunned!");
+		pli.getMessagesConfig().getConfig().addDefault("messages.hammer_spawned", "&6&lThe hammer spawned!");
 
 		pli.getMessagesConfig().getConfig().options().copyDefaults(true);
 		pli.getMessagesConfig().saveConfig();
@@ -107,6 +109,8 @@ public class Main extends JavaPlugin implements Listener {
 		stunned_because_lost_hammer = ChatColor.translateAlternateColorCodes('&', pli.getMessagesConfig().getConfig().getString("messages.stunned_because_lost_hammer"));
 		intro_message = ChatColor.translateAlternateColorCodes('&', pli.getMessagesConfig().getConfig().getString("messages.intro_message"));
 		stunnedstr = ChatColor.translateAlternateColorCodes('&', pli.getMessagesConfig().getConfig().getString("messages.stunned"));
+		hammer_spawned = ChatColor.translateAlternateColorCodes('&', pli.getMessagesConfig().getConfig().getString("messages.hammer_spawned"));
+
 	}
 
 	public static ArrayList<Arena> loadArenas(JavaPlugin plugin, ArenasConfig cf) {
@@ -186,7 +190,7 @@ public class Main extends JavaPlugin implements Listener {
 							a.nblocs_h.put(l, true);
 						}
 						a.nblocs.put(l, 1);
-						a.nblocs_r.put(l, (int) (Math.random() * 3 + 5));
+						a.nblocs_r.put(l, (int) (Math.random() * 4 + 4));
 						event.setCancelled(true);
 					} else {
 						a.nblocs.put(l, a.nblocs.get(l) + 1);
@@ -194,6 +198,11 @@ public class Main extends JavaPlugin implements Listener {
 						// hammer
 						if (Math.random() * 2 > 1 && a.nblocs_h.containsKey(l)) {
 							l.getWorld().strikeLightningEffect(l);
+							for (String p_ : a.getAllPlayers()) {
+								if (Validator.isPlayerOnline(p_)) {
+									Bukkit.getPlayer(p_).sendMessage(hammer_spawned);
+								}
+							}
 							final ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
 							ItemMeta itemmeta_axe = axe.getItemMeta();
 							itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
@@ -241,7 +250,7 @@ public class Main extends JavaPlugin implements Listener {
 						a.nblocs_h.put(l, true);
 					}
 					a.nblocs.put(l, 1);
-					a.nblocs_r.put(l, (int) (Math.random() * 3 + 6));
+					a.nblocs_r.put(l, (int) (Math.random() * 4 + 4));
 					event.setCancelled(true);
 				} else {
 					a.nblocs.put(l, a.nblocs.get(l) + 1);
@@ -249,6 +258,11 @@ public class Main extends JavaPlugin implements Listener {
 					// hammer
 					if (Math.random() * 2 > 1 && a.nblocs_h.containsKey(l)) {
 						l.getWorld().strikeLightningEffect(l);
+						for (String p_ : a.getAllPlayers()) {
+							if (Validator.isPlayerOnline(p_)) {
+								Bukkit.getPlayer(p_).sendMessage(hammer_spawned);
+							}
+						}
 						final ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
 						ItemMeta itemmeta_axe = axe.getItemMeta();
 						itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
@@ -260,10 +274,6 @@ public class Main extends JavaPlugin implements Listener {
 								l.getWorld().dropItem(l, axe);
 							}
 						}, 10L);
-						// p.getInventory().addItem(axe);
-						// p.sendMessage(hammerstr);
-						// p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 1));
-						// p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100000, 1));
 						event.setCancelled(true);
 						event.getBlock().setType(Material.AIR);
 						return;
