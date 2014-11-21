@@ -82,8 +82,14 @@ public class IArenaScoreboard extends ArenaScoreboard {
 					}
 
 					System.out.println(entry.getKey());
-					
+
+					int i = 0;
+
 					if (entry.getKey().length() > 0 && entry.getKey().length() < 17) {
+						i++;
+						if (i > 3) {
+							break;
+						}
 						String name = entry.getKey();
 						if (entry.getKey().length() > 12) {
 							name = entry.getKey().substring(0, 12);
