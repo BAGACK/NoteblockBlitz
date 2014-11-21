@@ -1,7 +1,10 @@
 package com.comze_instancelabs.noteblockblitz;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,6 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -48,6 +52,7 @@ import com.comze_instancelabs.minigamesapi.config.MessagesConfig;
 import com.comze_instancelabs.minigamesapi.config.StatsConfig;
 import com.comze_instancelabs.minigamesapi.util.Util;
 import com.comze_instancelabs.minigamesapi.util.Validator;
+import com.comze_instancelabs.minigamesapi.util.Util.ValueComparator;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -60,6 +65,7 @@ public class Main extends JavaPlugin implements Listener {
 	HashMap<String, BukkitTask> psneak = new HashMap<String, BukkitTask>();
 
 	ArrayList<String> stunned = new ArrayList<String>();
+	HashMap<String, Integer> temp_gold = new HashMap<String, Integer>();
 	HashMap<String, Integer> gold = new HashMap<String, Integer>();
 
 	IArenaScoreboard scoreboard;
@@ -141,6 +147,24 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
+	public void onPlayerDrop(PlayerDropItemEvent event) {
+		Player p = event.getPlayer();
+		if (pli.global_players.containsKey(p.getName())) {
+			if (event.getItemDrop().getItemStack().getType() == Material.GOLD_INGOT) {
+				event.setCancelled(true);
+			} else if (event.getItemDrop().getItemStack().getType() == Material.DIAMOND_AXE) {
+				for (PotionEffect t : p.getActivePotionEffects()) {
+					if (t != null) {
+						p.removePotionEffect(t.getType());
+					}
+				}
+				IArena a = (IArena) pli.global_players.get(p.getName());
+				a.currentHammerGuy = "";
+			}
+		}
+	}
+
+	@EventHandler
 	public void onPlayerPickup(PlayerPickupItemEvent event) {
 		Player p = event.getPlayer();
 		if (pli.global_players.containsKey(p.getName())) {
@@ -160,6 +184,8 @@ public class Main extends JavaPlugin implements Listener {
 				p.sendMessage(hammerstr);
 				p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 100000, 1));
 				p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100000, 1));
+				IArena a = (IArena) pli.global_players.get(p.getName());
+				a.currentHammerGuy = p.getName();
 			} else {
 				event.setCancelled(true);
 			}
@@ -181,13 +207,11 @@ public class Main extends JavaPlugin implements Listener {
 						return;
 					}
 
-					nb.play();
-
 					l.getWorld().dropItemNaturally(l, new ItemStack(Material.GOLD_INGOT));
 
 					if (!a.nblocs.containsKey(l)) {
 						if (Math.random() * 10 > 9 && a.nblocs_h.keySet().size() < 1) {
-							a.nblocs_h.put(l, true);
+							a.nblocs_h.put(l, 0);
 						}
 						a.nblocs.put(l, 1);
 						a.nblocs_r.put(l, (int) (Math.random() * 4 + 4));
@@ -196,30 +220,47 @@ public class Main extends JavaPlugin implements Listener {
 						a.nblocs.put(l, a.nblocs.get(l) + 1);
 
 						// hammer
-						if (Math.random() * 2 > 1 && a.nblocs_h.containsKey(l)) {
-							l.getWorld().strikeLightningEffect(l);
-							for (String p_ : a.getAllPlayers()) {
-								if (Validator.isPlayerOnline(p_)) {
-									Bukkit.getPlayer(p_).sendMessage(hammer_spawned);
+						if (a.nblocs_h.containsKey(l)) {
+							if (a.nblocs_h.get(l) > 7) {
+								l.getWorld().strikeLightningEffect(l);
+								for (String p_ : a.getAllPlayers()) {
+									if (Validator.isPlayerOnline(p_)) {
+										Bukkit.getPlayer(p_).sendMessage(hammer_spawned);
+										Bukkit.getPlayer(p_).playNote(l, Instrument.BASS_GUITAR, new Note(3));
+									}
 								}
+								final ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
+								ItemMeta itemmeta_axe = axe.getItemMeta();
+								itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
+								itemmeta_axe.addEnchant(Enchantment.DIG_SPEED, 1, true);
+								itemmeta_axe.setDisplayName(hammer_item);
+								axe.setItemMeta(itemmeta_axe);
+								Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+									public void run() {
+										l.getWorld().dropItem(l, axe);
+									}
+								}, 10L);
+								b.setType(Material.AIR);
+							} else {
+								for (String p_ : a.getAllPlayers()) {
+									if (Validator.isPlayerOnline(p_)) {
+										Bukkit.getPlayer(p_).playNote(l, Instrument.BASS_GUITAR, new Note(3));
+									}
+								}
+								a.nblocs_h.put(l, a.nblocs_h.get(l) + 1);
 							}
-							final ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
-							ItemMeta itemmeta_axe = axe.getItemMeta();
-							itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
-							itemmeta_axe.addEnchant(Enchantment.DIG_SPEED, 1, true);
-							itemmeta_axe.setDisplayName(hammer_item);
-							axe.setItemMeta(itemmeta_axe);
-							Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-								public void run() {
-									l.getWorld().dropItem(l, axe);
-								}
-							}, 10L);
-							b.setType(Material.AIR);
 							return;
 						}
 
+						nb.play();
+
 						if (a.nblocs.get(l) > a.nblocs_r.get(l)) {
 							b.setType(Material.AIR);
+							for (String p_ : a.getAllPlayers()) {
+								if (Validator.isPlayerOnline(p_)) {
+									Bukkit.getPlayer(p_).playNote(l, Instrument.SNARE_DRUM, new Note(a.nblocs.get(l)));
+								}
+							}
 							return;
 						}
 					}
@@ -230,69 +271,12 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent event) {
-		if (event.getBlock().getType() == Material.NOTE_BLOCK) {
-			Player p = event.getPlayer();
-			if (pli.global_players.containsKey(p.getName())) {
-				NoteBlock nb = (NoteBlock) event.getBlock().getState();
-				final Location l = nb.getLocation();
-				IArena a = (IArena) pli.global_players.get(p.getName());
-				if (a.getArenaState() != ArenaState.INGAME) {
-					event.setCancelled(true);
-					return;
-				}
-
-				nb.play();
-
-				l.getWorld().dropItemNaturally(l, new ItemStack(Material.GOLD_INGOT));
-
-				if (!a.nblocs.containsKey(l)) {
-					if (Math.random() * 10 > 9 && a.nblocs_h.keySet().size() < 1) {
-						a.nblocs_h.put(l, true);
-					}
-					a.nblocs.put(l, 1);
-					a.nblocs_r.put(l, (int) (Math.random() * 4 + 4));
-					event.setCancelled(true);
-				} else {
-					a.nblocs.put(l, a.nblocs.get(l) + 1);
-
-					// hammer
-					if (Math.random() * 2 > 1 && a.nblocs_h.containsKey(l)) {
-						l.getWorld().strikeLightningEffect(l);
-						for (String p_ : a.getAllPlayers()) {
-							if (Validator.isPlayerOnline(p_)) {
-								Bukkit.getPlayer(p_).sendMessage(hammer_spawned);
-							}
-						}
-						final ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
-						ItemMeta itemmeta_axe = axe.getItemMeta();
-						itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
-						itemmeta_axe.addEnchant(Enchantment.DIG_SPEED, 1, true);
-						itemmeta_axe.setDisplayName(hammer_item);
-						axe.setItemMeta(itemmeta_axe);
-						Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-							public void run() {
-								l.getWorld().dropItem(l, axe);
-							}
-						}, 10L);
-						event.setCancelled(true);
-						event.getBlock().setType(Material.AIR);
-						return;
-					} else {
-						// if (Math.random() * 15 > 1) {
-						// l.getWorld().createExplosion(l, 1.5F, false);
-						// }
-					}
-
-					if (a.nblocs.get(l) > a.nblocs_r.get(l)) {
-						event.setCancelled(true);
-						event.getBlock().setType(Material.AIR);
-						return;
-					} else {
-						event.setCancelled(true);
-					}
-				}
-				nb.setNote(new Note(nb.getNote().getId() + 1));
-				nb.update();
+		Player p = event.getPlayer();
+		if (pli.global_players.containsKey(p.getName())) {
+			IArena a = (IArena) pli.global_players.get(p.getName());
+			if (a.getArenaState() == ArenaState.INGAME) {
+				event.setCancelled(true);
+				return;
 			}
 		}
 	}
@@ -302,17 +286,25 @@ public class Main extends JavaPlugin implements Listener {
 		if (event.hasBlock()) {
 			Player p = event.getPlayer();
 			if (pli.global_players.containsKey(p.getName())) {
-				if (event.getClickedBlock().getType() == Material.NOTE_BLOCK) {
-					if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-						event.setCancelled(true);
-					} else if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-						IArena a = (IArena) pli.global_players.get(p.getName());
-						Location l = event.getClickedBlock().getLocation();
-						if (a.nblocs_h.containsKey(l)) {
-							p.playNote(l, Instrument.BASS_GUITAR, new Note(a.nblocs.get(l)));
+				if ((pli.global_players.get(p.getName()).getArenaState() == ArenaState.INGAME)) {
+					if (event.getClickedBlock().getType() == Material.NOTE_BLOCK) {
+						if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 							event.setCancelled(true);
+						} else if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+							IArena a = (IArena) pli.global_players.get(p.getName());
+							Location l = event.getClickedBlock().getLocation();
+							if (a.nblocs_h.containsKey(l)) {
+								for (String p_ : a.getAllPlayers()) {
+									if (Validator.isPlayerOnline(p_)) {
+										Bukkit.getPlayer(p_).playNote(l, Instrument.BASS_GUITAR, new Note(a.nblocs.get(l)));
+									}
+								}
+								event.setCancelled(true);
+							}
 						}
 					}
+				} else if ((pli.global_players.get(p.getName()).getArenaState() == ArenaState.STARTING)) {
+					event.setCancelled(true);
 				}
 			}
 		}
@@ -331,6 +323,9 @@ public class Main extends JavaPlugin implements Listener {
 						event.setDamage(0D);
 						p.setHealth(20D);
 						p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 10000, -7));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 120, 1));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 120, 1));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 90, 1));
 						p.sendMessage(stunnedstr);
 						stunned.add(p.getName());
 						Bukkit.getScheduler().runTaskLater(this, new Runnable() {
@@ -370,15 +365,21 @@ public class Main extends JavaPlugin implements Listener {
 							if (p.getExp() > 0.9F) {
 								p.setExp(0.99F);
 								// do the knockback attack
-								for (Entity e : p.getNearbyEntities(3.5D, 3.5D, 3.5D)) {
+								for (Entity e : p.getNearbyEntities(4D, 4D, 4D)) {
 									if (e instanceof Player) {
 										Player p_ = (Player) e;
 										if (p != p_) {
 											p_.setVelocity(p_.getEyeLocation().getDirection().multiply(-2D));
-											p.playEffect(p_.getLocation(), Effect.POTION_BREAK, 5);
+											// p.playEffect(p_.getLocation(), Effect.POTION_BREAK, 5);
 										}
 									}
 								}
+								for (String p_ : (pli.global_players.get(p.getName()).getAllPlayers())) {
+									if (Validator.isPlayerOnline(p_)) {
+										playAura(Bukkit.getPlayer(p_), p.getLocation(), 4);
+									}
+								}
+
 								psneak.get(p.getName()).cancel();
 							}
 						}
@@ -397,4 +398,43 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
+	public void playAura(Player p, Location l, int cr) {
+		int cradius_s = cr * cr;
+		Location start = l;
+		int x = start.getBlockX();
+		int y = start.getBlockY();
+		int z = start.getBlockZ();
+		for (int x_ = -cr; x_ <= cr; x_++) {
+			for (int z_ = -cr; z_ <= cr; z_++) {
+				int t = (x_ * x_) + (z_ * z_);
+				if (t >= cradius_s && t <= (cradius_s + 90)) {
+					p.playEffect(new Location(start.getWorld(), x - x_, y, z - z_), Effect.POTION_BREAK, 5);
+				}
+			}
+		}
+	}
+	
+	public TreeMap<String, Integer> getTop(Arena a) {
+		ValueComparator bvc = new ValueComparator(gold);
+		TreeMap<String, Integer> sorted_wins = new TreeMap<String, Integer>(bvc);
+		sorted_wins.putAll(gold);
+		return sorted_wins;
+	}
+
+	public static class ValueComparator implements Comparator<String> {
+		Map<String, Integer> base;
+
+		public ValueComparator(Map<String, Integer> base) {
+			this.base = base;
+		}
+
+		public int compare(String a, String b) {
+			if (base.get(a) >= base.get(b)) {
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+	}
+	
 }

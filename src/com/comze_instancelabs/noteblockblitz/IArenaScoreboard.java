@@ -1,6 +1,7 @@
 package com.comze_instancelabs.noteblockblitz;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,8 +19,7 @@ import com.comze_instancelabs.minigamesapi.util.ArenaScoreboard;
 
 public class IArenaScoreboard extends ArenaScoreboard {
 
-	HashMap<String, Scoreboard> ascore = new HashMap<String, Scoreboard>();
-	// HashMap<String, Objective> aobjective = new HashMap<String, Objective>();
+	public HashMap<String, Scoreboard> ascore = new HashMap<String, Scoreboard>();
 	HashMap<String, Objective> gpp = new HashMap<String, Objective>();
 
 	Main plugin = null;
@@ -27,6 +27,8 @@ public class IArenaScoreboard extends ArenaScoreboard {
 	public IArenaScoreboard(Main m) {
 		this.plugin = m;
 	}
+
+	boolean temp_info = false;
 
 	public void updateScoreboard(final IArena arena) {
 		if (arena != null) {
@@ -41,12 +43,28 @@ public class IArenaScoreboard extends ArenaScoreboard {
 					} else {
 						gpp.put(p_, ascore.get(p_).registerNewObjective(p_.subSequence(0, p_.length() - 1) + "-", "dummy"));
 					}
+				} else {
+					gpp.get(p_).unregister();
+					gpp.remove(p_);
+					if (p_.length() < 14) {
+						gpp.put(p_, ascore.get(p_).registerNewObjective(p_ + "_2", "dummy"));
+					} else {
+						gpp.put(p_, ascore.get(p_).registerNewObjective(p_.subSequence(0, p_.length() - 1) + "-", "dummy"));
+					}
+				}
+
+				if (MinigamesAPI.getAPI().version.equalsIgnoreCase("v1_7_3") || MinigamesAPI.getAPI().version.equalsIgnoreCase("v1_7_2") || MinigamesAPI.getAPI().version.equalsIgnoreCase("v1_7_1")) {
+					if (!temp_info) {
+						temp_info = true;
+						System.out.println("No scoreboard support for 1.7.9 and below! Only 1.7.10 and the upcoming 1.8 version.");
+					}
+					return;
 				}
 
 				gpp.get(p_).setDisplaySlot(DisplaySlot.SIDEBAR);
-				gpp.get(p_).setDisplayName("[" + p_ + "]");
+				gpp.get(p_).setDisplayName("[" + arena.getDisplayName() + "]");
 
-				ascore.get(p_).resetScores(Bukkit.getOfflinePlayer(p_));
+				ascore.get(p_).resetScores(p_);
 				if (!plugin.gold.containsKey(p_)) {
 					plugin.gold.put(p_, 0);
 				}
@@ -56,8 +74,46 @@ public class IArenaScoreboard extends ArenaScoreboard {
 					gp = plugin.getConfig().getInt("player." + p_ + ".gp"); // +2 gp!
 				}
 
-				gpp.get(p_).getScore(Bukkit.getOfflinePlayer("Gold")).setScore(plugin.gold.get(p_));
-				gpp.get(p_).getScore(Bukkit.getOfflinePlayer("Players")).setScore(arena.getAllPlayers().size());
+				int c = 0;
+				for (Map.Entry<String, Integer> entry : plugin.getTop(arena).entrySet()) {
+					c++;
+					if (c > 3) {
+						break;
+					}
+
+					System.out.println(entry.getKey());
+					
+					if (entry.getKey().length() > 0 && entry.getKey().length() < 17) {
+						String name = entry.getKey();
+						if (entry.getKey().length() > 12) {
+							name = entry.getKey().substring(0, 12);
+						}
+						if (plugin.temp_gold.containsKey(entry.getKey())) {
+							ascore.get(p_).resetScores(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
+							p.sendMessage(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
+						} else {
+							plugin.temp_gold.put(entry.getKey(), 0);
+							ascore.get(p_).resetScores(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
+							p.sendMessage(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
+						}
+						if (plugin.gold.containsKey(entry.getKey())) {
+							name += "(" + plugin.gold.get(entry.getKey()) + ")";
+						} else {
+							name = entry.getKey();
+						}
+						plugin.temp_gold.put(entry.getKey(), plugin.gold.get(entry.getKey()));
+						gpp.get(p_).getScore(name).setScore(0 - c);
+						p.sendMessage(name);
+					}
+				}
+
+				gpp.get(p_).getScore(" ").setScore(-7);
+				gpp.get(p_).getScore("Hammer Guy").setScore(-8);
+				if (!arena.currentHammerGuy.equalsIgnoreCase("")) {
+					gpp.get(p_).getScore(arena.currentHammerGuy).setScore(-9);
+				} else {
+					gpp.get(p_).getScore("None").setScore(-9);
+				}
 
 				p.setScoreboard(ascore.get(p_));
 			}

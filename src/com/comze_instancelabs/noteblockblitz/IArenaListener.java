@@ -37,6 +37,7 @@ public class IArenaListener extends ArenaListener {
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		final Player p = event.getEntity();
 		if (MinigamesAPI.getAPI().pinstances.get(plugin).global_players.containsKey(p.getName())) {
+			final IArena a = (IArena) MinigamesAPI.getAPI().pinstances.get(plugin).global_players.get(p.getName());
 			event.getDrops().clear();
 			p.setHealth(20D);
 			for (PotionEffect t : p.getActivePotionEffects()) {
@@ -45,6 +46,7 @@ public class IArenaListener extends ArenaListener {
 				}
 			}
 			if (p.getInventory().contains(Material.DIAMOND_AXE)) {
+				a.currentHammerGuy = "";
 				ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
 				ItemMeta itemmeta_axe = axe.getItemMeta();
 				itemmeta_axe.addEnchant(Enchantment.KNOCKBACK, 2, true);
@@ -61,6 +63,9 @@ public class IArenaListener extends ArenaListener {
 			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				public void run() {
 					Util.clearInv(p);
+					if (plugin.gold.containsKey(p.getName())) {
+						p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, plugin.gold.get(p.getName())));
+					}
 				}
 			}, 10L);
 			Util.teleportPlayerFixed(p, MinigamesAPI.getAPI().pinstances.get(plugin).global_players.get(p.getName()).getSpawns().get(0));
@@ -76,5 +81,4 @@ public class IArenaListener extends ArenaListener {
 			return;
 		}
 	}
-
 }
