@@ -96,11 +96,11 @@ public class IArenaScoreboard extends ArenaScoreboard {
 						}
 						if (plugin.temp_gold.containsKey(entry.getKey())) {
 							ascore.get(p_).resetScores(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
-							p.sendMessage(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
+							// p.sendMessage(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
 						} else {
 							plugin.temp_gold.put(entry.getKey(), 0);
 							ascore.get(p_).resetScores(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
-							p.sendMessage(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
+							// p.sendMessage(name + "(" + plugin.temp_gold.get(entry.getKey()) + ")");
 						}
 						if (plugin.gold.containsKey(entry.getKey())) {
 							name += "(" + plugin.gold.get(entry.getKey()) + ")";
@@ -109,7 +109,7 @@ public class IArenaScoreboard extends ArenaScoreboard {
 						}
 						plugin.temp_gold.put(entry.getKey(), plugin.gold.get(entry.getKey()));
 						gpp.get(p_).getScore(name).setScore(0 - c);
-						p.sendMessage(name);
+						// p.sendMessage(name);
 					}
 				}
 

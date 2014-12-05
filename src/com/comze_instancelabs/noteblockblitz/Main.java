@@ -241,6 +241,10 @@ public class Main extends JavaPlugin implements Listener {
 									}
 								}, 10L);
 								b.setType(Material.AIR);
+								a.nblocs.remove(l);
+								if (a.nblocs.size() < 1) {
+									a.stop();
+								}
 							} else {
 								for (String p_ : a.getAllPlayers()) {
 									if (Validator.isPlayerOnline(p_)) {
@@ -260,6 +264,10 @@ public class Main extends JavaPlugin implements Listener {
 								if (Validator.isPlayerOnline(p_)) {
 									Bukkit.getPlayer(p_).playNote(l, Instrument.SNARE_DRUM, new Note(a.nblocs.get(l)));
 								}
+							}
+							a.nblocs.remove(l);
+							if (a.nblocs.size() < 1) {
+								a.stop();
 							}
 							return;
 						}
@@ -413,7 +421,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 	}
-	
+
 	public TreeMap<String, Integer> getTop(Arena a) {
 		ValueComparator bvc = new ValueComparator(gold);
 		TreeMap<String, Integer> sorted_wins = new TreeMap<String, Integer>(bvc);
@@ -436,5 +444,5 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 	}
-	
+
 }
