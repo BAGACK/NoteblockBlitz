@@ -15,6 +15,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.comze_instancelabs.minigamesapi.Arena;
+import com.comze_instancelabs.minigamesapi.MinecraftVersionsType;
 import com.comze_instancelabs.minigamesapi.MinigamesAPI;
 import com.comze_instancelabs.minigamesapi.util.ArenaScoreboard;
 
@@ -54,10 +55,10 @@ public class IArenaScoreboard extends ArenaScoreboard {
 					}
 				}
 
-				if (MinigamesAPI.getAPI().version.equalsIgnoreCase("v1_7_3") || MinigamesAPI.getAPI().version.equalsIgnoreCase("v1_7_2") || MinigamesAPI.getAPI().version.equalsIgnoreCase("v1_7_1")) {
+				if (MinigamesAPI.SERVER_VERSION.isBelow(MinecraftVersionsType.V1_7_R4)) {
 					if (!temp_info) {
 						temp_info = true;
-						System.out.println("No scoreboard support for 1.7.9 and below! Only 1.7.10 and the upcoming 1.8 version.");
+						System.out.println("No scoreboard support for 1.7.9 and below! Only 1.7.10 and higher versions.");
 					}
 					return;
 				}
