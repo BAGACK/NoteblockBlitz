@@ -1,6 +1,6 @@
 name: MGNoteblockBlitz
 main: com.comze_instancelabs.noteblockblitz.Main
-version: ${version}
+version: ${minigames.releaseversion}-${minigames.timestamp}
 author: [InstanceLabs,mepeisen]
 softdepend: [Vault, MinigamesLib]
 depend: [MinigamesLib]
