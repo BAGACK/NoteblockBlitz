@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.MCE-Plugins</groupId>
-	<artifactId>NoteblockBlitz-Plugin</artifactId>
+	<artifactId>MGNoteblockBlitz-Plugin</artifactId>
 	<version>1.14.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>NoteblockBlitz</name>
@@ -72,7 +72,7 @@
 						<configuration>
 							<artifactSet>
 								<includes>
-									<include>com.github.MCE-Plugins:NoteblockBlitz*</include>
+									<include>com.github.MCE-Plugins:MGNoteblockBlitz*</include>
 								</includes>
 							</artifactSet>
 						</configuration>
