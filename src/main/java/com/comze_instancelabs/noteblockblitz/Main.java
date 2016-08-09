@@ -143,7 +143,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		CommandHandler ch = new CommandHandler();
-		return ch.handleArgs(this, "mgnoteblockblitz", "/" + cmd.getName(), sender, args);
+		return ch.handleArgs(this, MinigamesAPI.getAPI().getPermissionGamePrefix("noteblockblitz"), "/" + cmd.getName(), sender, args);
 	}
 
 	@EventHandler
