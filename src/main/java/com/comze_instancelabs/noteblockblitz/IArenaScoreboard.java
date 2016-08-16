@@ -2,6 +2,7 @@ package com.comze_instancelabs.noteblockblitz;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -58,7 +59,7 @@ public class IArenaScoreboard extends ArenaScoreboard {
 				if (MinigamesAPI.SERVER_VERSION.isBelow(MinecraftVersionsType.V1_7_R4)) {
 					if (!temp_info) {
 						temp_info = true;
-						System.out.println("No scoreboard support for 1.7.9 and below! Only 1.7.10 and higher versions.");
+						this.plugin.getLogger().severe("No scoreboard support for 1.7.9 and below! Only 1.7.10 and higher versions.");
 					}
 					return;
 				}
@@ -142,7 +143,7 @@ public class IArenaScoreboard extends ArenaScoreboard {
 				}
 			} catch (Exception e) {
 				if (MinigamesAPI.debug) {
-					e.printStackTrace();
+					MinigamesAPI.getAPI().getLogger().log(Level.WARNING, "exception", e);
 				}
 			}
 		}
