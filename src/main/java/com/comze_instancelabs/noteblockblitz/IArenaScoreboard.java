@@ -129,7 +129,7 @@ public class IArenaScoreboard extends ArenaScoreboard {
 
 	@Override
 	public void updateScoreboard(JavaPlugin plugin, final Arena arena) {
-		IArena a = (IArena) MinigamesAPI.getAPI().pinstances.get(plugin).getArenaByName(arena.getName());
+		IArena a = (IArena) MinigamesAPI.getAPI().pinstances.get(plugin).getArenaByName(arena.getInternalName());
 		this.updateScoreboard(a);
 	}
 
