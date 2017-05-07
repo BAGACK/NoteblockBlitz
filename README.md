@@ -1,4 +1,4 @@
-NoteblockBlitz [![Build Status](http://www.minigameslib.de/build.php?app=NoteBlockBlitz&major=1)](http://www.minigameslib.de/buildref.php?app=NoteBlockBlitz&major=1)
+NoteblockBlitz [![Build Status](http://www.minigameslib.de/build.png?app=NoteBlockBlitz&major=1)](http://www.minigameslib.de/buildref.php?app=NoteBlockBlitz&major=1)
 ==============
 
 Destroy all of them noteblocks, highest score wins. Beware of the hammer guy!
