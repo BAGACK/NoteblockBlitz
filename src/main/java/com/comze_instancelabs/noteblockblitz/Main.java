@@ -51,6 +51,7 @@ import com.comze_instancelabs.minigamesapi.config.ArenasConfig;
 import com.comze_instancelabs.minigamesapi.config.DefaultConfig;
 import com.comze_instancelabs.minigamesapi.config.MessagesConfig;
 import com.comze_instancelabs.minigamesapi.config.StatsConfig;
+import com.comze_instancelabs.minigamesapi.util.PlayerPickupItemHelper;
 import com.comze_instancelabs.minigamesapi.util.Util;
 import com.comze_instancelabs.minigamesapi.util.Validator;
 
@@ -90,6 +91,8 @@ public class Main extends JavaPlugin implements Listener {
 		IArenaListener t = new IArenaListener(this, pinstance);
 		api.registerArenaListenerLater(this, t);
 		pinstance.setArenaListener(t);
+		
+		new PlayerPickupItemHelper(this, this::onPlayerPickup);
 
 		pli = pinstance;
 
@@ -164,8 +167,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void onPlayerPickup(PlayerPickupItemEvent event) {
+	public void onPlayerPickup(PlayerPickupItemHelper.CustomPickupEvent event) {
 		Player p = event.getPlayer();
 		if (pli.global_players.containsKey(p.getName())) {
 			if (stunned.contains(p.getName())) {
